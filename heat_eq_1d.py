@@ -3,7 +3,7 @@ Simulating heat diffusion over a uniform 1d pure copper rod by solving the heat 
 To change the initial conditions and boundary conditions, change the globals BC and IC.
 '''
 import trig
-import jax as np
+import numpy as np
 import matplotlib.pyplot as plt
 
 BC = 100
