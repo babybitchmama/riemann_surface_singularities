@@ -1,5 +1,6 @@
 import math
 pi = math.pi
+
 def cart_to_polar(x,y):
     r = math.sqrt( x ** 2 + y ** 2)
     if x > 0 and y > 0:
@@ -13,7 +14,7 @@ def cart_to_polar(x,y):
     elif y == 0 and x > 0:
         theta = 0
         
-    print (r, theta)
+    return (r, theta)
     
 def polar_to_cart(r, theta):
     cart = (r * math.cos(theta), r * math.sin(theta))
@@ -26,6 +27,3 @@ def is_on_uc(x, y):
         print('The point (', x, ',', y, ') is on the Unit Circle')
     else:
         print ('The point (', x, y, ') is NOT on the Unit Circle')
-
-def adv_loc_los(A, a, b):
-    math.sin(A) / 
