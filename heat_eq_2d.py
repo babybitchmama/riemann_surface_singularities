@@ -1,13 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import math as m
 
 def sim_u(a, length, width, time, nodes, BCx, BCy):
 
-    # Boundary conditions and Initial conditins
-
+    # calculate additional parameters
     dx = length / (nodes - 1)
     dy = width / (nodes - 1)
-
     dt = min(dx ** 2 / (4 * a), dy ** 2 / (4 * a))
 
     t_nodes = int(time / dt)
@@ -28,7 +27,7 @@ def sim_u(a, length, width, time, nodes, BCx, BCy):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
 
-    # set fixed z limits so the scale doesn't jump around
+    # set z limits
     ax.set_zlim(0, 100)
     ax.set_xlabel("x (mm)")
     ax.set_ylabel("y (mm)")
@@ -36,13 +35,12 @@ def sim_u(a, length, width, time, nodes, BCx, BCy):
 
     surf = ax.plot_surface(X, Y, u, cmap="jet", vmin=0, vmax=100)
 
-    # optional: a colorbar for the surface colors (height is still z)
     fig.colorbar(surf, ax=ax, shrink=0.6, pad=0.1)
 
-    data = {}
-    # simulation
 
+    # model
     counter = 0
+    data = {}
 
     for step in range(t_nodes):
         w = u.copy()
@@ -53,7 +51,6 @@ def sim_u(a, length, width, time, nodes, BCx, BCy):
                 dd_uy = (w[i, j - 1] - 2*w[i, j] + w[i, j + 1]) / dy ** 2
             
                 u[i, j] = dt * a * (dd_ux + dd_uy) + w[i, j]
-
 
         u[0, :] = BCx
         u[-1, :] = BCy
