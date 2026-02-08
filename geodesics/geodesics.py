@@ -1,6 +1,7 @@
 import numpy as np
-import matplotlib
+import matplotlib as plt
 import doctest
+from matplotlib.animation import FuncAnimation
 
 """Find a way to store pos and v, simulate it all at once (with animations)"""
 
