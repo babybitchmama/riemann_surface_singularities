@@ -7,6 +7,7 @@ import trig
 # caluclate a geodesic at each moment, see how it changes with the curvature
 # Jost 2.3 up to curvature?? Fubiini-Study metric
 
+BETA = 0.5
 
 def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
 
@@ -50,20 +51,24 @@ def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
             # Apply to next slice
             u[n+1, i, :] = u[n, i, :] + dt * a * (u_rr + (1/radius * u_r))
 
-            # Expensive...can we move outside the loop or update in place?
-            u[n+1] = set_boundary(u[n+1])
+        # Expensive...can we update in place?
+        u[n+1] = set_boundary(u[n+1])
 
     R, TH = np.meshgrid(r, theta, indexing="ij")
 
+    phi = (1-BETA) * TH
+    X = R * np.cos(phi)
+    Y = R * np.sin(phi)
+
     # Plot the sim
-    plot_u_with_slider(u, R, TH, dt)
+    plot_u_with_slider(u, X, Y, dt)
 
 
 def set_boundary(w:np.ndarray):
     '''returns a copy of w with boundary conditions enforced. W should be a 2d array representing
     the temp at one time t. w[i, j] is temp at radius i, angle j for a given time.'''
     l = w.copy()
-    l[1, :] = 2
+    l[-1, :] = 2
     return l
 
 
