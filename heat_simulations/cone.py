@@ -7,6 +7,7 @@ import trig
 # caluclate a geodesic at each moment, see how it changes with the curvature
 # Jost 2.3 up to curvature?? Fubiini-Study metric
 
+# beta in [0, 1]
 BETA = 0.5
 
 def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
@@ -38,6 +39,7 @@ def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
     # The model: updates for each time step t
     for n in range(t_nodes - 1):
         w = u[n]
+        #print(np.log(w))
         log_w = np.log(w)
 
 
@@ -51,7 +53,7 @@ def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
             u_r = (log_w[i+1, :] - log_w[i-1, :]) / (2 * dr)
 
             # Apply to next slice
-            u[n+1, i, :] = r**(2-(2*BETA)) * (u[n, i, :] + dt * a * (u_rr + (1/radius * u_r)))
+            u[n+1, i, :] =  u[n, i, :] + dt * a * radius**(2-(2*BETA)) * (u_rr + (1/radius * u_r))
 
         # Expensive...can we update in place?
         u[n+1] = set_boundary(u[n+1])
@@ -62,7 +64,7 @@ def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
 
     R, TH = np.meshgrid(r, theta, indexing="ij")
 
-    phi = (1-BETA) * TH
+    phi = TH
     X = R * np.cos(phi)
     Y = R * np.sin(phi)
 
@@ -134,4 +136,4 @@ def initialize(u, dx, dy):
 
 
 if __name__ == "__main__":
-    sim_in_polar()
+    sim_in_polar(t=1)
