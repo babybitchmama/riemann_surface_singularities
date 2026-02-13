@@ -1,23 +1,18 @@
 
 # Heat Diffusion and Geodesics
-We're modeling heat diffusion, starting in 1d and working to 2d and then eventually to curvature on Riemann surfaces. 
+We're modeling heat diffusion and investigating curvature. This process began with simple simulations of heat diffusion on a 1D rod, and then a 2D surface. Then we messed with different boundary conditions, and transitioned to simulations in polar. Now we're working on extending to non-radially symmetric systems.
 
-Recently updated to model more interesting boundary conditions f(0, y) = 0, f(1, y) = 1-2y, f(x, 0) = sin(pi * x / 2), f(x, 1) = -sin(pi * x / 2)
+Our long-term goal is to model curvature flow on Riemann surfaces with conical singularities, and study the conditions for uniform curvature as a function of the cone angle.
 
-## Installation
+### Installation
 To run the simulation, you'll need to install `python`, `numpy` and `matplotlib`.
 
-In `cool_boundaries.py` check out the more interesting conditions.
+## `heat_simulations`
+### `first_passes`
+In `first_passes`, you'll find the first simulations we created, like the initial 1D and 2D models, as well as experiments with more interesting boundary conditions. With `bounds_time_stack` we made our first attempt at storing all values and plotting all at once.
 
-In `heat_eq_2d.py` you can edit the initial conditions and boundary conditions to create a different environment for the simulation. Our model solves the heat equation to model diffusion across a surface.
+### `polar`
+In `polar`, you'll find our more advanced simulations in polar coordinates, including the one involving curvature ove a cone in `cone.py`. `polar.py` was my first attempt at simulating in polar coordinates.
 
-In `geodesics.py` use the initial conditions to see how the geodesic behaves under different cone angles, velocites, and initial positions.
-
-# More Interesting Simulations
-In `polar.py`, you can view the simulation in polar coordinates with a radially symmetric laplacian. This essentially allows us to work in 1d.
-
-In `cone.py`, we simulated more interesting curvature over a cone.
-
-
-
-This project will eventually be used to study conic singularities on Riemann surfaces, but for now it's a simple simulation of heat diffusion and a simulation of a geodesic on a conical surface.
+## `geodesics`
+In the `geodesics` directory, you can see some attempts at modeling the trajectory of a geodesic near a cone structure. The animations are rudimentary (very ugly).

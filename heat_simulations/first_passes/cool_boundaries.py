@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 # Save the state at every moment in time, and then plot at end
 # caluclate a geodesic at each moment, see how it changes with the curvature
-# Jost 2.3 up to curvature?? Fubiini-Study metric
+# Jost 2.3 up to curvature, Fubiini-Study metric
 
 def set_boundary_conditions(u: np.array, dx, dy):
     #----boundary conditions----#

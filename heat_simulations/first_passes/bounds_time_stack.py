@@ -4,7 +4,7 @@ from matplotlib.widgets import Slider
 
 # Save the state at every moment in time, and then plot at end
 # caluclate a geodesic at each moment, see how it changes with the curvature
-# Jost 2.3 up to curvature?? Fubiini-Study metric
+# Jost 2.3 up to curvature, Fubiini-Study metric
 
 def plot_u_with_slider(u, X, Y, dt):
     t_nodes = u.shape[0]
