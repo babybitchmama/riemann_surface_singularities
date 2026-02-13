@@ -13,5 +13,11 @@ In `heat_eq_2d.py` you can edit the initial conditions and boundary conditions t
 
 In `geodesics.py` use the initial conditions to see how the geodesic behaves under different cone angles, velocites, and initial positions.
 
+# More Interesting Simulations
+In `polar.py`, you can view the simulation in polar coordinates with a radially symmetric laplacian. This essentially allows us to work in 1d.
+
+In `cone.py`, we simulated more interesting curvature over a cone.
+
+
 
 This project will eventually be used to study conic singularities on Riemann surfaces, but for now it's a simple simulation of heat diffusion and a simulation of a geodesic on a conical surface.

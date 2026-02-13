@@ -7,7 +7,7 @@ import trig
 # caluclate a geodesic at each moment, see how it changes with the curvature
 # Jost 2.3 up to curvature?? Fubiini-Study metric
 
-BETA = 0.5
+BETA = 0
 
 def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
 
@@ -20,7 +20,8 @@ def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
     dr = r[1] - r[0]
     dtheta = theta[1] - theta[0]
     
-    # Stable dt
+    # Stable dt for no diffusion dependent on theta
+    #FIXME will update if we extend to non-radially symmetric
     dt = (dr**2) / (4*a) / 2
     t_nodes = int(t / dt) + 1
 
@@ -38,7 +39,7 @@ def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
     for n in range(t_nodes - 1):
         w = u[n]
 
-        # Update
+        # Update excludes r = 0
         for i in range(1, Nr - 1):
             radius = r[i]
             
@@ -53,6 +54,10 @@ def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
 
         # Expensive...can we update in place?
         u[n+1] = set_boundary(u[n+1])
+
+        # set r = 0 to the temp of the closest point
+        u[n+1, 0, :] = u[n+1, 1, 0]
+
 
     R, TH = np.meshgrid(r, theta, indexing="ij")
 

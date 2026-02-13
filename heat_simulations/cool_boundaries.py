@@ -94,7 +94,7 @@ def sim_u(a, length, width, time, nodes):
 
                 dd_ux = (w[i - 1, j] - 2*w[i, j] + w[i + 1, j]) / dx ** 2
                 dd_uy = (w[i, j - 1] - 2*w[i, j] + w[i, j + 1]) / dy ** 2
-                
+
                 # set u[t_idx + 1]
                 u[i, j] = dt * a * (dd_ux + dd_uy) + w[i, j]
         # Reinforce boundary
