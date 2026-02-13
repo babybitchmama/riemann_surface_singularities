@@ -15,62 +15,75 @@ RHO = 0.5
 
 rMAX = 1.0
 
-tMAX = 2.0
+tMAX = 5.0
 
-def sim_in_polar(a=1.0, t=tMAX, Nr=80, Ntheta=16):
+# Get radii in [0,1]
+a=0.1
+Nr=150
+Ntheta=16
 
-    # Get radii in [0,1]
-    r = np.linspace(0.0, rMAX, Nr)
-    # Get theta from [-pi, pi]
-    theta = np.linspace(-np.pi, np.pi, Ntheta, endpoint=True)
+rVals = np.linspace(0.0, rMAX, Nr)
 
-    # Calculate radial and angular steps
-    dr = r[1] - r[0]
-    dtheta = theta[1] - theta[0]
-    
-    # Stable dt for no diffusion dependent on theta
-    #FIXME will update if we extend to non-radially symmetric
-    dt = (dr**2) / (4*a) / 2
-    t_nodes = int(t / dt) + 1
+# Get theta from [-pi, pi]
+theta = np.linspace(-np.pi, np.pi, Ntheta, endpoint=True)
 
-    # Background metric
-    uBackground = []
-    for rInd in r:
-        uBackground.append(np.full(shape=(Ntheta), fill_value=np.exp(rInd ** (RHO)) * rInd ** (2 * BETA - 2)))
-    uBackground = np.array(uBackground)
+# Calculate radial and angular steps
+dr = rVals[1] - rVals[0]
+dtheta = theta[1] - theta[0]
 
-    def laplacianBackground(f):
-        lapf=[]
-        for i in range(1, Nr - 1):
-            radius = r[i]
-            #Second derivative
-            f_rr = (f[i+1, :] - 2*f[i, :] + f[i-1, :]) / dr ** 2
+# Stable dt for no diffusion dependent on theta
+#FIXME will update if we extend to non-radially symmetric
+dt = (dr**2) / (4*a) / 2
+tVals = int(tMAX / dt) + 1
 
-            # First derivative
-            f_r = (f[i+1, :] - f[i-1, :]) / (2 * dr)
+# Background metric
+uBackground = []
+for r in rVals:
+    uBackground.append(np.full(shape=(Ntheta), fill_value=np.exp(r ** RHO) * r ** (2 * BETA - 2)))
+uBackground = np.array(uBackground)
 
-            # Apply to next slice
-            lapf.append(1 / uBackground[i,:] * (f_rr + 1 / r[i] * f_r))
-        return np.array(lapf)
+def metric_laplacian(f,g):
+    lapf=[]
+    for i in range(1, Nr - 1):
+        radius = rVals[i]
+        #Second derivative
+        f_rr = (f[i+1, :] - 2*f[i, :] + f[i-1, :]) / (dr ** 2)
 
+        # First derivative
+        f_r = (f[i, :] - f[i-1, :]) / dr
 
+        # Apply to next slice
+        lapf.append((f_rr + f_r / rVals[i]) / g[i,:])
+    return np.array(lapf)
+
+# First order extrapolation on the r=0 end
+def left_extrapolate(f):
+    firstRow = f[0] + dr * (f[0] - f[1])
+    return np.concatenate((firstRow[None,:], f), axis=0)
+
+# Calculates curvature
+def measure_curvature(g):
+    return metric_laplacian(np.log(g),g)
+
+# Integrates a function
+def integrate(f):
+    return np.sum(
+        np.array([f[i] * rVals[i] * dr * dtheta for i in range(0,Nr-2)])
+        )
+
+# Measures average curvature
+def average_curvature(g):
+    curvature = measure_curvature(g)
+    curvature = left_extrapolate(curvature[1:])
+    return integrate(curvature) / (2 * np.pi)
+
+def sim_in_polar(t=tMAX):
     # Background scalar curvature
-    KBackground = laplacianBackground(np.log(uBackground))
-
-    # Fix divide by 0 error by using first order extrapolation (sloppy: need to fix this)
-    KBackground[0,:] = KBackground[1,:] + dr * (KBackground[1,:] - KBackground [2,:])
-
-    # Calculate average curvature
-    KAverage = 0
-    for i in range(1,Nr-2):
-        for j in range(0,Ntheta):
-            KAverage = KAverage + KBackground[i,j] * r[i] * dr * dtheta
-    KAverage = KAverage / (2 * np.pi)
-    print(KAverage)
-
+    KBackground = measure_curvature(uBackground)
+    KBackground = left_extrapolate(KBackground[1:])
 
     # Initialize u, where u[t, i, j] is the temp at time t, radius i, angle j
-    u = np.zeros((t_nodes, Nr, Ntheta), dtype=float)
+    u = np.zeros((tVals, Nr, Ntheta), dtype=float)
 
 
     # Set init condition
@@ -80,23 +93,19 @@ def sim_in_polar(a=1.0, t=tMAX, Nr=80, Ntheta=16):
     u[0] = set_boundary(u[0])
 
     # The model: updates for each time step t
-    for n in range(t_nodes - 1):
-        w = u[n]
-        #print(np.log(w))
-        log_w = np.log(w)
+    for n in range(tVals - 1):
+        KAvg = average_curvature(u[n] * uBackground)
 
-
-        # Update excludes endpoints in r
-        u[n+1, 1:-1, :] = u[n, 1:-1, :] + dt * a * (laplacianBackground(u[n,:,:]) + KAverage * u[n,1:-1,:] - KBackground[:,:])
+        # Update excludes endpoints in rVals
+        u[n+1, 1:-1] = u[n, 1:-1] + dt * (metric_laplacian(u[n,:,:],uBackground) + KAvg * u[n,1:-1,:] - KBackground)
 
         # Expensive...can we update in place?
         u[n+1] = set_boundary(u[n+1])
 
-        # set r = 0 to the temp of the closest point
-        u[n+1, 0, :] = u[n+1, 1, 0]
+        # First order extrapolation to get rVals=0 point point
+        u[n+1, 0, :] = u[n+1, 1, :] + dr * (u[n+1, 2, :] - u[n+1, 1, :])
 
-
-    R, TH = np.meshgrid(r, theta, indexing="ij")
+    R, TH = np.meshgrid(rVals, theta, indexing="ij")
 
     phi = TH
     X = R * np.cos(phi)
@@ -105,6 +114,8 @@ def sim_in_polar(a=1.0, t=tMAX, Nr=80, Ntheta=16):
 
     #Multiply uBackground by u to get the metric g_t
     gMetric = uBackground[None,:,:] * u[:,:]
+
+    print(measure_curvature(gMetric[-1]))
 
     #Remove singularity by duplicating next value
     gMetric[:,0,:] = gMetric[:,1,:]
@@ -123,7 +134,7 @@ def set_boundary(w:np.ndarray):
 
 
 def plot_u_with_slider(u, X, Y, dt):
-    t_nodes = u.shape[0]
+    tVals = u.shape[0]
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     fig.subplots_adjust(bottom=0.18)
@@ -140,7 +151,7 @@ def plot_u_with_slider(u, X, Y, dt):
     ax.set_zlabel("Temp")
 
     slider_ax = fig.add_axes([0.15, 0.06, 0.7, 0.04])
-    s = Slider(slider_ax, "time index k", 0, t_nodes - 1, valinit=k0, valstep=1)
+    s = Slider(slider_ax, "time index k", 0, tVals - 1, valinit=k0, valstep=1)
 
     def update(val):
         nonlocal surf
