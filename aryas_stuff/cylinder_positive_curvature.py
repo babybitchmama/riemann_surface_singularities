@@ -4,31 +4,27 @@ from matplotlib.widgets import Slider
 import trig
 import tqdm
 
-# Save the state at every moment in time, and then plot at end
-# caluclate a geodesic at each moment, see how it changes with the curvature
-# Jost 2.3 up to curvature?? Fubini-Study metric
-
 # beta in [0, 1]
 BETA = 0.5
 
-# rho determines the target scalar curvature (though currently in a confusing way)
+# rho is the target scalar curvature (not implemented yet)
 RHO = 0.5
 
-yMIN = -1.0
+yMIN = -1.2
 yMAX = 1.0
-tMAX = 10.0
+tMAX = 5.0
 a = 2.0
-ySAMPLES = 40
+ySAMPLES = 60
 thetaSAMPLES = 2
 
 yVals = np.linspace(yMIN, yMAX, ySAMPLES)
 
 # Get theta from [-pi, pi]
-theta = np.linspace(-np.pi, np.pi, thetaSAMPLES, endpoint=True)
+thetaVals = np.linspace(-np.pi, np.pi, thetaSAMPLES, endpoint=True)
 
 # Calculate radial and angular steps
 dy = yVals[1] - yVals[0]
-dtheta = theta[1] - theta[0]
+dtheta = thetaVals[1] - thetaVals[0]
 
 # Stable dt for no diffusion dependent on theta
 #FIXME will update if we extend to non-radially symmetric
@@ -109,10 +105,10 @@ def sim_in_polar(t=tMAX):
         # First order extrapolation to update r=0 values
         u[n+1, 0, :] = u[n+1, 1, :]# + (u[n+1, 1, :] - u[n+1, 2, :])
 
-    #print(u[-1])
+    #This is what we want to be uniform in the limit.  Currently, it's not working.  I believe this to be because my current method is too sensitive to error in the calculations involving muBacground.
     print(measure_curvature(u[-1] * muBackground))
 
-    Y, TH = np.meshgrid(yVals, theta, indexing="ij")
+    Y, TH = np.meshgrid(yVals, thetaVals, indexing="ij")
 
     #Multiply muBackground by u to get the metric g_t
     gMetric = muBackground * u * np.exp(- yVals)[:, np.newaxis]
@@ -122,14 +118,6 @@ def sim_in_polar(t=tMAX):
 
     # Plot the sim
     plot_side_by_side_with_slider(u, gMetric, Y, TH, dt)
-
-
-def set_boundary(w:np.ndarray):
-    '''returns a copy of w with boundary conditions enforced. W should be a 2d array representing
-    the temp at one time t. w[i, j] is temp at radius i, angle j for a given time.'''
-    l = w.copy()
-    l[-1, :] = 1.0
-    return l
 
 
 def plot_side_by_side_with_slider(u1, u2, X, Y, dt, title1="u", title2="g"):
