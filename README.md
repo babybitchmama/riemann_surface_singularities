@@ -16,3 +16,8 @@ In `polar`, you'll find our more advanced simulations in polar coordinates, incl
 
 ## `geodesics`
 In the `geodesics` directory, you can see some attempts at modeling the trajectory of a geodesic near a cone structure. The animations are rudimentary (very ugly).
+
+
+## Log
+Last stopping point: started changing `polar_2d.py` to work for non-radially-symmetric situations. Need to index theta
+in order to set intial conditions. Not sure if the section iterating over j, where j indexes the angle theta, is correct. The discretized updates may be incorrect. Will revisit tomorrow.
