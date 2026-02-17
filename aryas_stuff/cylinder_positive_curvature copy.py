@@ -10,11 +10,11 @@ BETA = 0.5
 # rho is the target scalar curvature (not implemented yet)
 RHO = 0.5
 
-yMIN = -1.0
+yMIN = -1.2
 yMAX = 1.0
-tMAX = 0.5
-a = 5.0
-ySAMPLES = 30
+tMAX = 5.0
+a = 2.0
+ySAMPLES = 60
 thetaSAMPLES = 2
 
 yVals = np.linspace(yMIN, yMAX, ySAMPLES)
@@ -93,25 +93,31 @@ def sim_in_polar(t=tMAX):
     u[:, -1, :] = 1.1
 
 
-    # New version
-    lam = u * muBackground
-    gMetric = lam * np.exp(- yVals)[:, np.newaxis]
-    print(gMetric)
-
+    # The model: updates for each time step t
     for n in tqdm.tqdm(range(tSamples-1)):
-        # Update excludes y endpoints.
-        lam[n+1, 1:-1] = lam[n, 1:-1] + dt * (average_curvature(lam[n]) * lam[n,1:-1] + measure_curvature(lam[n]))
+        KAvg = average_curvature(u[n] * muBackground)
 
-        # Zeroth order extrapolation to update left endpoint
-        lam[n+1, 0] = lam[n+1, 1]# + (u[n+1, 1, :] - u[n+1, 2, :])
+        # Update excludes y endpoints.  I'm struggling to actually uniformize curvature here.  I'll probably need to work with honest Ricci flow rather than separating muBacground from u.
+        u[n+1, 1:-1] = u[n, 1:-1] + dt * (metric_laplacian(u[n], muBackground) + KAvg * muBackground[1:-1] - KBackground)
 
-        gMetric[n+1] = lam[n+1] * np.exp(- yVals)[:, np.newaxis]
+        #u[n+1, 1:-1] = u[n, 1:-1] + dt * (metric_laplacian(u[n], muBackground) + 0.988 * KAvg * u[n,1:-1] - KBackground)
 
+        # First order extrapolation to update r=0 values
+        u[n+1, 0, :] = u[n+1, 1, :]# + (u[n+1, 1, :] - u[n+1, 2, :])
+
+    #This is what we want to be uniform in the limit.  Currently, it's not working.  I believe this to be because my current method is too sensitive to error in the calculations involving muBacground.
+    print(measure_curvature(u[-1] * muBackground))
 
     Y, TH = np.meshgrid(yVals, thetaVals, indexing="ij")
 
+    #Multiply muBackground by u to get the metric g_t
+    gMetric = muBackground * u * np.exp(- yVals)[:, np.newaxis]
+
+    #Remove singularity by duplicating next value
+    gMetric[:,0,:] = gMetric[:,1,:] + (gMetric[:,1,:] - gMetric[:,2,:])
+
     # Plot the sim
-    plot_side_by_side_with_slider(lam, gMetric, Y, TH, dt)
+    plot_side_by_side_with_slider(u, gMetric, Y, TH, dt)
 
 
 def plot_side_by_side_with_slider(u1, u2, X, Y, dt, title1="u", title2="g"):
