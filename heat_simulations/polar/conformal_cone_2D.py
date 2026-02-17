@@ -2,8 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 
-
-# Jost 2.3 up to curvature?? Fubiini-Study metric
+# Jost 2.3 up to curvature, Fubiini-Study metric
 
 BETA = 0
 
@@ -84,7 +83,7 @@ def sim_in_polar(a=1.0, t=0.25, Nr=40, Ntheta=40):
                 u_next[i, j] = w[i, j] + dt * a * (u_rr + (1/radius * u_r) + 1/(radius**2)*(u_theta_theta))
 
         # Update in place instead of calling the function...might be faster
-        u_next[-1, :] = np.cos(2 * theta)
+        u_next[-1, :] = 2 + np.cos(2 * theta)
         
 
         u, u_next = u_next, u
@@ -109,7 +108,7 @@ def set_boundary(w:np.ndarray, theta):
     '''returns a copy of w with boundary conditions enforced. W should be a 2d array representing
     the temp at one time t. w[i, j] is temp at radius i, angle j for a given time.'''
     l = w.copy()
-    l[-1, :] = np.cos(10 * theta)
+    l[-1, :] = 2 + np.cos(10 * theta)
     return l
 
 
