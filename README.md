@@ -14,10 +14,11 @@ In `first_passes`, you'll find the first simulations we created, like the initia
 ### `polar`
 In `polar`, you'll find our more advanced simulations in polar coordinates, including the one involving curvature ove a cone in `cone.py`. `polar.py` was my first attempt at simulating in polar coordinates.
 
+In `polar_2d.py`, I just made my first attempt at using the angular derivative. It's wonky but it finally looks kinda cool so I'm leaving that for now. Will revisit tomorrow.
+
 ## `geodesics`
 In the `geodesics` directory, you can see some attempts at modeling the trajectory of a geodesic near a cone structure. The animations are rudimentary (very ugly).
 
 
 ## Log
-Last stopping point: started changing `polar_2d.py` to work for non-radially-symmetric situations. Need to index theta
-in order to set intial conditions. Not sure if the section iterating over j, where j indexes the angle theta, is correct. The discretized updates may be incorrect. Will revisit tomorrow.
+Last stopping point: started changing `polar_2d.py` to work for non-radially-symmetric scenarios. It now works -ish but I need to extend to the conformal cone.
