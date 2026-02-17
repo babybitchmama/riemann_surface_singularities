@@ -7,12 +7,12 @@ from matplotlib.widgets import Slider
 
 BETA = 0
 
-def sim_in_polar(a=1.0, t=0.25, Nr=40, Ntheta=40):
+def sim_in_polar(a=1.0, t=0.5, Nr=30, Ntheta=30):
 
     # Get radii in [0,1]
     r = np.linspace(0.0, 1.0, Nr)
     # Get theta from [-pi, pi]
-    theta = np.linspace(-np.pi, np.pi, Ntheta, endpoint=False)
+    theta = np.linspace(-np.pi, np.pi, Ntheta, endpoint=True)
 
     # Calculate radial and angular steps
     dr = r[1] - r[0]
@@ -29,7 +29,7 @@ def sim_in_polar(a=1.0, t=0.25, Nr=40, Ntheta=40):
         )
     )
 
-    dt *= 0.6
+    dt *= 1.0
 
     t_nodes = int(t / dt) + 1
 
