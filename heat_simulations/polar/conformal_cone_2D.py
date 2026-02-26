@@ -1,17 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
+from tqdm import tqdm
 
-# Jost 2.3 up to curvature, Fubiini-Study metric
+
+# Jost 2.3 up to curvature?? Fubiini-Study metric
 
 BETA = 0
 
-def sim_in_polar(a=1.0, t=0.25, Nr=40, Ntheta=40):
+def sim_in_polar(a=1.0, t=0.5, Nr=30, Ntheta=30):
 
     # Get radii in [0,1]
     r = np.linspace(0.0, 1.0, Nr)
     # Get theta from [-pi, pi]
-    theta = np.linspace(-np.pi, np.pi, Ntheta, endpoint=False)
+    theta = np.linspace(-np.pi, np.pi, Ntheta, endpoint=True)
 
     # Calculate radial and angular steps
     dr = r[1] - r[0]
@@ -28,7 +30,7 @@ def sim_in_polar(a=1.0, t=0.25, Nr=40, Ntheta=40):
         )
     )
 
-    dt *= 0.6
+    dt *= 0.8
 
     t_nodes = int(t / dt) + 1
 
@@ -55,35 +57,39 @@ def sim_in_polar(a=1.0, t=0.25, Nr=40, Ntheta=40):
     u_next = np.zeros_like(u)
 
     # The model: updates for each time step t
-    for n in range(t_nodes - 1):
+    for n in tqdm(range(t_nodes - 1)):
         w = u
+        w = np.log(w)
         u_next[:, :] = w[:, :]
 
+        u_next[1:-1] = w[1:-1] + dt * a* laplacian(w,r,dr,theta,dtheta)
+
+        #OLD VERSION
         # Update excludes r = 0
-        for i in range(1, Nr - 1):
-            radius = r[i]
-            for j in range(Ntheta):
+        # for i in range(1, Nr - 1):
+        #     radius = r[i]
+        #     for j in range(Ntheta):
             
-                # Wrap around when we get to the beginning or end.
-                # The neighbor should be the opposite index
+        #         # Wrap around when we get to the beginning or end.
+        #         # The neighbor should be the opposite index
 
-                jp = (j + 1) % Ntheta
-                jm = (j - 1) % Ntheta
+        #         jp = (j + 1) % Ntheta
+        #         jm = (j - 1) % Ntheta
 
-                #Second derivative of r
-                u_rr = (w[i+1, j] - 2*w[i, j] + w[i-1, j]) / dr ** 2
+        #         #Second derivative of r
+        #         u_rr = (w[i+1, j] - 2*w[i, j] + w[i-1, j]) / dr ** 2
 
-                # First derivative of r
-                u_r = (w[i+1, j] - w[i-1, j]) / (2 * dr)
+        #         # First derivative of r
+        #         u_r = (w[i+1, j] - w[i-1, j]) / (2 * dr)
 
-                # Second derivative of theta
-                u_theta_theta = (w[i, jp] - 2*w[i, j] + w[i, jm])/ dtheta**2
+        #         # Second derivative of theta
+        #         u_theta_theta = (w[i, jp] - 2*w[i, j] + w[i, jm])/ dtheta**2
 
-                # Apply to next slice
-                u_next[i, j] = w[i, j] + dt * a * (u_rr + (1/radius * u_r) + 1/(radius**2)*(u_theta_theta))
+        #         # Apply to next slice
+        #         u_next[i, j] = w[i, j] + dt * a * (u_rr + (1/radius * u_r) + 1/(radius**2)*(u_theta_theta))
 
         # Update in place instead of calling the function...might be faster
-        u_next[-1, :] = 2 + np.cos(2 * theta)
+        u_next[-1, :] = np.cos(2 * theta)
         
 
         u, u_next = u_next, u
@@ -103,12 +109,36 @@ def sim_in_polar(a=1.0, t=0.25, Nr=40, Ntheta=40):
     # Plot the sim
     plot_frames_with_slider(frames, frame_times, X, Y)
 
+#Cycles a list
+def cycle_left(list:np.ndarray):
+    newlist = list.copy()
+    newlist = np.append(newlist, newlist[0])
+    return newlist[1:]
+
+def cycle_right(list:np.ndarray):
+    newlist = list.copy()
+    newlist = np.insert(newlist, 0, newlist[0])
+    return newlist[:-1]
+
+#Calculate laplacian
+def laplacian(f,r,dr,theta,dtheta):
+    f_rr = (f[2:] - 2 * f[1:-1] + f[:-2]) / (dr ** 2)
+    f_r = (f[2:] - f[:-2]) / (2 * dr)
+    f_theta_theta = (np.apply_along_axis(cycle_left, 1, f) - 2 * f + np.apply_along_axis(cycle_right, 1, f)) / (dtheta ** 2)
+
+    return f_rr + f_r / r[1:-1, np.newaxis] + f_theta_theta[1:-1] / (r[1:-1, np.newaxis] ** 2)
+
+    # First derivative of r
+    u_r = (w[i+1, j] - w[i-1, j]) / (2 * dr)
+
+    # Second derivative of theta
+    u_theta_theta = (w[i, jp] - 2*w[i, j] + w[i, jm])/ dtheta**2
 
 def set_boundary(w:np.ndarray, theta):
     '''returns a copy of w with boundary conditions enforced. W should be a 2d array representing
     the temp at one time t. w[i, j] is temp at radius i, angle j for a given time.'''
     l = w.copy()
-    l[-1, :] = 2 + np.cos(10 * theta)
+    l[-1, :] = np.cos(10 * theta)
     return l
 
 
