@@ -20,8 +20,10 @@ def sim_in_polar(a=1.0, t=1.0, Nr=80, Ntheta=80):
     dr = r[1] - r[0]
     dtheta = theta[1] - theta[0]
     
-    # Stable dt for no diffusion dependent on theta
     #FIXME will update if we extend to non-radially symmetric
+    # Stable dt
+
+  
     dt = (dr**2) / (4*a) / 2
     t_nodes = int(t / dt) + 1
 
@@ -109,7 +111,6 @@ def plot_u_with_slider(u, X, Y, dt):
 
     s.on_changed(update)
     plt.show()
-
 
 
 def initialize(u, dx, dy):
