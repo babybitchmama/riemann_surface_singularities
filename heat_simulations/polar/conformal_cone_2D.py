@@ -57,9 +57,10 @@ def sim_in_polar(a=1.0, t=0.5, Nr=30, Ntheta=30):
     u_next = np.zeros_like(u)
 
     # The model: updates for each time step t
+    w = u
+    w = np.log(w)
     for n in tqdm(range(t_nodes - 1)):
-        w = u
-        w = np.log(w)
+        w = u_next
         u_next[:, :] = w[:, :]
 
         u_next[1:-1] = w[1:-1] + dt * a* laplacian(w,r,dr,theta,dtheta)
@@ -138,7 +139,7 @@ def set_boundary(w:np.ndarray, theta):
     '''returns a copy of w with boundary conditions enforced. W should be a 2d array representing
     the temp at one time t. w[i, j] is temp at radius i, angle j for a given time.'''
     l = w.copy()
-    l[-1, :] = np.cos(10 * theta)
+    l[-1, :] = 2 + np.cos(10 * theta)
     return l
 
 
