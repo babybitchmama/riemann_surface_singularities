@@ -21,5 +21,4 @@ In the `geodesics` directory, you can see some attempts at modeling the trajecto
 
 
 ## Log
-Updated runtime around 4x speed increase with Arya's slice method replacing the nested loops. Need to apply runtime increase and angular derivative to the conformal cone.
-Need to figure out how to avoid log(0) errors.
+Updated runtime around 4x speed increase with Arya's slice method replacing the nested loops. Added angular derivative to conformal cone, used a +2 to avoid log(0) errors.
