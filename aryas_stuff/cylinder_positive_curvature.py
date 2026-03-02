@@ -12,9 +12,9 @@ RHO = 0.5
 
 yMIN = -1.0
 yMAX = 1.0
-tMAX = 0.5
-a = 5.0
-ySAMPLES = 30
+tMAX = 1.0
+a = 1.0
+ySAMPLES = 40
 thetaSAMPLES = 2
 
 yVals = np.linspace(yMIN, yMAX, ySAMPLES)
@@ -38,23 +38,11 @@ def ff(x):
 # Background metric
 muBackground = (ff(yVals) * np.exp((BETA - 1) * yVals))[:,np.newaxis] * np.full((thetaSAMPLES),1)
 
-# Calculates laplacian.  Output is missing both y endpoints.
+# Calculates laplacian.  Output loses both y endpoints.
 # This version uses broadcasting to perform the operation in C, which is about twice as fast as the old version below.
 def standard_laplacian(f):
     f_yy = (f[2:] - 2 * f[1:-1] + f[:-2]) / (dy ** 2)
     return np.exp(-2 * yVals[1:-1])[:, np.newaxis] * f_yy
-
-# OLD VERSION
-# def standard_laplacian(f):
-#     lapf=[]
-#     for i in range(1, ySAMPLES - 1):
-#         radius = yVals[i]
-#         #Second derivative
-#         f_yy = (f[i+1, :] - 2*f[i, :] + f[i-1, :]) / (dy ** 2)
-
-#         # Apply to next slice
-#         lapf.append(np.exp(-2 * yVals[i]) * f_yy)
-#     return np.array(lapf)
 
 # Calculates laplacian with respect to a metric coefficient mu
 def metric_laplacian(f, mu):
@@ -67,7 +55,7 @@ def measure_curvature(mu):
 # Integrates a function
 def integrate(f, mu):
     return np.sum(
-        np.array([mu[i] ** 2 * np.exp(2 * BETA * yVals[i]) * f[i] * yVals[i] * dy * dtheta for i in range(0,ySAMPLES-2)])
+        np.array([mu[i] ** 2 * np.exp(2 * BETA * yVals[i]) * f[i-1] * dy * dtheta for i in range(1,ySAMPLES-1)])
         )
 
 # First order extrapolation on the r=0 end
@@ -90,20 +78,22 @@ def sim_in_polar(t=tMAX):
 
     # Set init condition
     u[0, :, :] = 1.0
-    u[:, -1, :] = 1.1
+    u[:, -1, :] = 1.0
 
 
     # New version
     lam = u * muBackground
     gMetric = lam * np.exp(- yVals)[:, np.newaxis]
-    print(gMetric)
+    print(average_curvature(lam[0]))
 
     for n in tqdm.tqdm(range(tSamples-1)):
+        if n%100==0:
+            print(average_curvature(lam[n]))
         # Update excludes y endpoints.
-        lam[n+1, 1:-1] = lam[n, 1:-1] + dt * (average_curvature(lam[n]) * lam[n,1:-1] + measure_curvature(lam[n]))
+        lam[n+1, 1:-1] = lam[n, 1:-1] + dt * (average_curvature(lam[n]) * lam[n,1:-1] - measure_curvature(lam[n]))
 
-        # Zeroth order extrapolation to update left endpoint
-        lam[n+1, 0] = lam[n+1, 1]# + (u[n+1, 1, :] - u[n+1, 2, :])
+        # First order extrapolation to update left endpoint
+        lam[n+1, 0] = lam[n+1, 1] + (lam[n+1, 1] - lam[n+1, 2])
 
         gMetric[n+1] = lam[n+1] * np.exp(- yVals)[:, np.newaxis]
 

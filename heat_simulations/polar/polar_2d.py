@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 BETA = 0
 
-def sim_in_polar(a=1.0, t=0.5, Nr=30, Ntheta=30):
+def sim_in_polar(a=1.0, t=1.0, Nr=30, Ntheta=90):
 
     # Get radii in [0,1]
     r = np.linspace(0.0, 1.0, Nr)
@@ -88,7 +88,7 @@ def sim_in_polar(a=1.0, t=0.5, Nr=30, Ntheta=30):
         #         u_next[i, j] = w[i, j] + dt * a * (u_rr + (1/radius * u_r) + 1/(radius**2)*(u_theta_theta))
 
         # Update in place instead of calling the function...might be faster
-        u_next[-1, :] = np.cos(2 * theta)
+        u_next[-1, :] = np.cos(6 * theta)
         
 
         u, u_next = u_next, u
@@ -137,7 +137,7 @@ def set_boundary(w:np.ndarray, theta):
     '''returns a copy of w with boundary conditions enforced. W should be a 2d array representing
     the temp at one time t. w[i, j] is temp at radius i, angle j for a given time.'''
     l = w.copy()
-    l[-1, :] = np.cos(10 * theta)
+    l[-1, :] = np.cos(6 * theta)
     return l
 
 
