@@ -5,12 +5,12 @@ import trig
 import tqdm
 
 # beta in [0, 1]
-BETA = 0.5
+BETA = 1
 
 # rho is the target scalar curvature (not implemented yet)
 RHO = 0.5
 
-yMIN = -1.0
+yMIN = -0.8
 yMAX = 1.0
 tMAX = 1.0
 a = 1.0
@@ -27,7 +27,6 @@ dy = yVals[1] - yVals[0]
 dtheta = thetaVals[1] - thetaVals[0]
 
 # Stable dt for no diffusion dependent on theta
-#FIXME will update if we extend to non-radially symmetric
 dt = (dy**2) / (4*a) / 2
 tSamples = int(tMAX / dt) + 1
 
@@ -39,7 +38,7 @@ def ff(x):
 muBackground = (ff(yVals) * np.exp((BETA - 1) * yVals))[:,np.newaxis] * np.full((thetaSAMPLES),1)
 
 # Calculates laplacian.  Output loses both y endpoints.
-# This version uses broadcasting to perform the operation in C, which is about twice as fast as the old version below.
+# This version uses broadcasting to perform the operation in C, which is about twice as fast as the old version.
 def standard_laplacian(f):
     f_yy = (f[2:] - 2 * f[1:-1] + f[:-2]) / (dy ** 2)
     return np.exp(-2 * yVals[1:-1])[:, np.newaxis] * f_yy
@@ -75,10 +74,11 @@ def sim_in_polar(t=tMAX):
     # Initialize u, where u[t, i, j] is the temp at time t, radius i, angle j
     u = np.ones((tSamples, ySAMPLES, thetaSAMPLES), dtype=float)
 
+    avgCurvOverTime=np.array([])
 
     # Set init condition
     u[0, :, :] = 1.0
-    u[:, -1, :] = 1.0
+    u[:, -1, :] = 1.1
 
 
     # New version
@@ -87,10 +87,10 @@ def sim_in_polar(t=tMAX):
     print(average_curvature(lam[0]))
 
     for n in tqdm.tqdm(range(tSamples-1)):
-        if n%100==0:
-            print(average_curvature(lam[n]))
+        avgCurvOverTime=np.append(avgCurvOverTime,average_curvature(lam[n]))
+
         # Update excludes y endpoints.
-        lam[n+1, 1:-1] = lam[n, 1:-1] + dt * (average_curvature(lam[n]) * lam[n,1:-1] - measure_curvature(lam[n]))
+        lam[n+1, 1:-1] = lam[n, 1:-1] + dt * (-average_curvature(lam[n]) * lam[n,1:-1] - measure_curvature(lam[n]))
 
         # First order extrapolation to update left endpoint
         lam[n+1, 0] = lam[n+1, 1] + (lam[n+1, 1] - lam[n+1, 2])
@@ -101,15 +101,15 @@ def sim_in_polar(t=tMAX):
     Y, TH = np.meshgrid(yVals, thetaVals, indexing="ij")
 
     # Plot the sim
-    plot_side_by_side_with_slider(lam, gMetric, Y, TH, dt)
+    plot_side_by_side_with_slider(lam, gMetric, Y, TH, dt, avgCurvOverTime)
 
 
-def plot_side_by_side_with_slider(u1, u2, X, Y, dt, title1="u", title2="g"):
+def plot_side_by_side_with_slider(u1, u2, X, Y, dt, avgCurv, title1="u", title2="g"):
     tSamples = u1.shape[0]
-    fig = plt.figure(figsize=(12, 6))
+    fig = plt.figure(figsize=(18, 6))
     
     # Subplot 1
-    ax1 = fig.add_subplot(121, projection="3d")
+    ax1 = fig.add_subplot(131, projection="3d")
     zmin1 = float(u1.min())
     zmax1 = float(u1.max())
     ax1.set_zlim(zmin1, zmax1)
@@ -118,7 +118,7 @@ def plot_side_by_side_with_slider(u1, u2, X, Y, dt, title1="u", title2="g"):
     ax1.set_zlabel(title1)
 
     # Subplot 2
-    ax2 = fig.add_subplot(122, projection="3d")
+    ax2 = fig.add_subplot(132, projection="3d")
     zmin2 = float(u2.min())
     zmax2 = float(u2.max())
     ax2.set_zlim(zmin2, zmax2)
@@ -126,9 +126,18 @@ def plot_side_by_side_with_slider(u1, u2, X, Y, dt, title1="u", title2="g"):
     ax2.set_ylabel("theta")
     ax2.set_zlabel(title2)
 
+    # Subplot 3
+    ax3 = fig.add_subplot(133)
+    ax3.plot(np.arange(len(avgCurv)) * dt, avgCurv)
+    ax3.set_xlabel("t")
+    ax3.set_ylabel("Average Curvature")
+    ax3.set_title("Average Curvature over Time")
+    
+    k0 = 0
+    vline = ax3.axvline(k0 * dt, color='r')
+
     fig.subplots_adjust(bottom=0.18)
 
-    k0 = 0
     surf1 = ax1.plot_surface(X, Y, u1[k0], cmap="jet", vmin=zmin1, vmax=zmax1, shade=True)
     ax1.set_title(f"{title1} at t = {k0*dt:.4f} s")
     
@@ -139,7 +148,7 @@ def plot_side_by_side_with_slider(u1, u2, X, Y, dt, title1="u", title2="g"):
     s = Slider(slider_ax, "time index k", 0, tSamples - 1, valinit=k0, valstep=1)
 
     def update(val):
-        nonlocal surf1, surf2
+        nonlocal surf1, surf2, vline
         k = int(s.val)
         
         surf1.remove()
@@ -149,6 +158,8 @@ def plot_side_by_side_with_slider(u1, u2, X, Y, dt, title1="u", title2="g"):
         surf2.remove()
         surf2 = ax2.plot_surface(X, Y, u2[k], cmap="jet", vmin=zmin2, vmax=zmax2, shade=True)
         ax2.set_title(f"{title2} at t = {k*dt:.4f} s")
+        
+        vline.set_xdata([k*dt, k*dt])
         
         fig.canvas.draw_idle()
 
