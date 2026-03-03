@@ -33,7 +33,7 @@ In the `polar/2D` directory, we have the `conformal_cone_2D.py` and the `polar_2
 In the `polar/symmetric` folder are our first simulations in polar coordinates, which use the laplacian contructed to be radially symmetric, so we drop the angular derivative. Here's an example of the one simulating curvature over a cone (Arya please help with terminology!! haha): ![alt text](img/cone.png)
 
 ## `geodesics`
-In the `geodesics` directory, you can see some attempts at modeling the trajectory of a geodesic near a cone structure. The animations are rudimentary (very ugly).
+In the `geodesics` directory, you can see some attempts at modeling the trajectory of a geodesic near a cone structure. The animations are rudimentary (very ugly!).
 
 
 ## Log
