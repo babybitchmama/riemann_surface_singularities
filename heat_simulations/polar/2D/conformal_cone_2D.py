@@ -7,8 +7,9 @@ from tqdm import tqdm
 # Jost 2.3 up to curvature?? Fubiini-Study metric
 
 BETA = 0
+RHO = 0
 
-def sim_in_polar(a=1.0, t=0.5, Nr=30, Ntheta=30):
+def sim_in_polar(a=1.0, t=1, Nr=30, Ntheta=20):
 
     # Get radii in [0,1]
     r = np.linspace(0.0, 1.0, Nr)
@@ -54,16 +55,16 @@ def sim_in_polar(a=1.0, t=0.5, Nr=30, Ntheta=30):
     frames = []
     frame_times = []
     save_every = 200
-    u_next = np.zeros_like(u)
+    u_next = np.zeros_like(u)+2
 
     # The model: updates for each time step t
-    w = u
-    w = np.log(w)
+    # w = u
+    # w = np.log(w)
     for n in tqdm(range(t_nodes - 1)):
         w = u_next
         u_next[:, :] = w[:, :]
 
-        u_next[1:-1] = w[1:-1] + dt * a* laplacian(w,r,dr,theta,dtheta)
+        u_next[1:-1] = w[1:-1] + dt * a* (RHO * w[1:-1] + laplacian(np.log(w),r,dr,theta,dtheta))
 
         #OLD VERSION
         # Update excludes r = 0
@@ -90,7 +91,7 @@ def sim_in_polar(a=1.0, t=0.5, Nr=30, Ntheta=30):
         #         u_next[i, j] = w[i, j] + dt * a * (u_rr + (1/radius * u_r) + 1/(radius**2)*(u_theta_theta))
 
         # Update in place instead of calling the function...might be faster
-        u_next[-1, :] = np.cos(2 * theta)
+        u_next[-1, :] = np.cos(2 * theta) + 2
         
 
         u, u_next = u_next, u

@@ -98,6 +98,7 @@ def sim_in_polar(t=tMAX):
 
         gMetric[n+1] = lam[n+1] * np.exp(- yVals)[:, np.newaxis]
 
+    print(measure_curvature(lam[-1]))
 
     Y, TH = np.meshgrid(yVals, thetaVals, indexing="ij")
 
