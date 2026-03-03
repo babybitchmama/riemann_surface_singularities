@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
-import trig
+#import trig
 import tqdm
 
 # beta in [0, 1]
