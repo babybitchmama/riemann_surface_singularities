@@ -10,10 +10,10 @@ BETA = 1
 # rho is the target scalar curvature (not implemented yet)
 RHO = 0.5
 
-yMIN = -0.8
+yMIN = -1
 yMAX = 1.0
-tMAX = 1.0
-a = 1.0
+tMAX = 10.0
+a = 5.0
 ySAMPLES = 40
 thetaSAMPLES = 2
 
@@ -78,7 +78,7 @@ def sim_in_polar(t=tMAX):
 
     # Set init condition
     u[0, :, :] = 1.0
-    u[:, -1, :] = 1.1
+    u[:, -1, :] = .9
 
 
     # New version
@@ -87,13 +87,14 @@ def sim_in_polar(t=tMAX):
     print(average_curvature(lam[0]))
 
     for n in tqdm.tqdm(range(tSamples-1)):
-        avgCurvOverTime=np.append(avgCurvOverTime,average_curvature(lam[n]))
+        avgCurvOverTime=np.append(avgCurvOverTime,average_curvature(gMetric[n]))
 
         # Update excludes y endpoints.
-        lam[n+1, 1:-1] = lam[n, 1:-1] + dt * (-average_curvature(lam[n]) * lam[n,1:-1] - measure_curvature(lam[n]))
+        #lam[n+1, 1:-1] = lam[n, 1:-1] + dt * (average_curvature(gMetric[n]) - measure_curvature(gMetric[n])) * lam[n,1:-1]
+        lam[n+1, 1:-1] = lam[n, 1:-1] + dt * (-.2 - measure_curvature(lam[n])) * lam[n,1:-1]
 
         # First order extrapolation to update left endpoint
-        lam[n+1, 0] = lam[n+1, 1] + (lam[n+1, 1] - lam[n+1, 2])
+        lam[n+1, 0] = lam[n+1, 1]# + (lam[n+1, 1] - lam[n+1, 2])
 
         gMetric[n+1] = lam[n+1] * np.exp(- yVals)[:, np.newaxis]
 
