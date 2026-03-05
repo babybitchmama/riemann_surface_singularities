@@ -38,7 +38,13 @@ As in the stereographic projection example we discussed, sometimes we want to us
 \end{align}
 The associated symplectic form is $\omega=u\omega_0$.  When doing curvature flow, this weight function $u$ is what evolves over time.  Some, such as Jost, use $\lambda^2$ in place of $u$ to avoid worrying about negative values.  However Mazzeo-Rubinstein-Sesum just use $u$.
 
-\AY{Include figures}
+\begin{figure}\label{fig: Stereographic Projection}
+    \centering
+    \includegraphics[width=.4\textwidth]{stereographic_projection.png}\qquad
+    \includegraphics[width=.3\textwidth]{fubini_study_metric.png}
+    \captionsetup{width=.8\textwidth}
+    \caption{The image on the left is the stereographic projection, wherein the metric should measure $d_1$ as larger than $d_2$.  Thus, the weight function $u$ should be smaller away from the origin in $\R^2$.  This is reflected in the image on the right, which shows the graph of the weight function for the Fubini-Study metric.}
+\end{figure}
 
 \begin{definition*}
     Given a metric $g=ug_0$, the \emph{metric laplacian} is $\Delta_g=\frac1u\Delta$ where $\Delta$ is the standard laplacian, and the \emph{scalar curvature} is $K_g=\Delta_g\log u$.
