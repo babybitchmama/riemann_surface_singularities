@@ -4,7 +4,6 @@ from matplotlib.widgets import Slider
 from tqdm import tqdm
 
 
-# Jost 2.3 up to curvature?? Fubiini-Study metric
 
 BETA = 0
 RHO = 0
