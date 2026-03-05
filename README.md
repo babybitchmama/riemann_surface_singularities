@@ -1,8 +1,8 @@
 
 # Heat Diffusion and Geodesics
-We're modeling heat diffusion and investigating curvature. This process began with simple simulations of heat diffusion on a 1D rod, and then a 2D surface. Then we messed with different boundary conditions, and transitioned to simulations in polar coordinates using the polar laplacian.
+We're modeling heat diffusion and investigating curvature. This process began with simple simulations of heat diffusion on a 1D rod, and then a 2D surface. Then we began varying the boundary conditions, and transitioned to simulations in polar coordinates using the polar form for the laplacian.
 
-Our long-term goal is to model curvature flow on Riemann surfaces with conical singularities, and study the conditions for uniform curvature as a function of the cone angle.
+Our long-term goal is to model curvature flow on Riemann surfaces with prescribed conical singularities, producing the uniformization metrics whose existence was establish in *Ricci flow on surfaces with conic singularities* (2015) by Mazzeo, Rubinstein, Sesum.
 
 ### Installation
 To run the simulations, you'll need to install `python`, and run
@@ -22,7 +22,7 @@ In `first_passes`, you'll find the first simulations we created, like the initia
 In `polar`, you'll find our two directories:
 ### 2D:
 In the `polar/2D` directory, we have the `curvature_flow.py` and the `polar_2d.py` modules. 
-`curvature_flow.py` is a simulation of curvature flow (Arya if you could help me out the terminology here). Notice that the `sim_in_polar()` function takes default parameters for `a` (the diffusivity constant), `t` (the time interval over which we simulate), as well as the number of radial and angular samples. At the bottom of the file, you can tweak the parameters as you wish. Run the file to see the simulation. Here is an example: 
+`curvature_flow.py` is a simulation of (unnormalized) Ricci flow using the PDE $u_t=\Delta\log u$. Notice that the `sim_in_polar()` function takes default parameters for `a` (the diffusivity constant), `t` (the time interval over which we simulate), as well as the number of radial and angular samples. At the bottom of the file, you can tweak the parameters as you wish. Run the file to see the simulation. Here is an example: 
 ![alt text](img/conformal_cone.png)
 
 `polar_2d.py` is a simulation of classical heat flow, done in polar coordinates. You can similarly adjust the paramters as you wish. Here is a cool example from at two different time points: 
@@ -30,7 +30,7 @@ In the `polar/2D` directory, we have the `curvature_flow.py` and the `polar_2d.p
 ![alt text](img/polar_late_t.png)
 
 ### symmetric:
-In the `polar/symmetric` folder are our first simulations in polar coordinates, which use the laplacian contructed to be radially symmetric, so we drop the angular derivative. Here's an example of the one simulating curvature over a cone (Arya please help with terminology!! haha): ![alt text](img/cone.png)
+In the `polar/symmetric` folder are our first simulations in polar coordinates, which use radially symmetric initial conditions, allowing us to omit the angular derivative component of the laplacian. Here's an example of the one simulating curvature over a disk: ![alt text](img/cone.png)
 
 ## `geodesics`
 In the `geodesics` directory, you can see some attempts at modeling the trajectory of a geodesic near a cone structure. The animations are rudimentary (very ugly!).
