@@ -55,8 +55,8 @@ The reason for the $\frac1u$ factor has to do with coordinate changes.  To illus
 
 Note that $K_g$ is a function on $\R^2$, because the curvature depends on the location.  The purpose of Ricci flow is to even out the curvature, to make $K_g$ a constant function.  The limit is called a \emph{uniformization metric}.
 
-Let $g_t=u_tg_0$ be a family of metrics\footnote{The $t$ subscript does not mean derivative.  We'll stick with $\partial$ notation for derivatives.}, and let $K_t=K_{g_t}$.  Let $U\subseteq\R^2$ be a region.  With respect to the metric $g_t$, the volume (area) of $U$ is $\mathrm{Vol}_t(U)=\int_U u_t$ and the average curvature on $U$ is
-    $$\rho_t=\frac1{\mathrm{Vol}_t(U)}\int_U K_tu_t.$$
+Let $g_t=u_tg_0$ be a family of metrics\footnote{The $t$ subscript does not mean derivative.  We'll stick with $\partial$ notation for derivatives.}, and let $K_t=K_{g_t}$.  Let $U\subseteq\R^2$ be a region.  With respect to the metric $g_t$, the volume (area) of $U$ is $\mathrm{Vol}_t(U)=\int_U \omega_t=\int_U u_t\,\de x\,\de y$ and the average curvature on $U$ is
+    $$\rho_t=\frac1{\mathrm{Vol}_t(U)}\int_U K_t\omega_t=\frac1{\mathrm{Vol}_t(U)}\int_U K_tu_t\,\de x\,\de y.$$
 
 The \emph{normalized Ricci flow equation} on $U$ is
 \begin{equation}
