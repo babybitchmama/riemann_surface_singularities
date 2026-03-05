@@ -1,0 +1,55 @@
+\documentclass{article}
+\input{C:/Users/aryay/OneDrive/Shared Files/Programs/Preamble.tex}
+
+
+\title{Geodesics on a Cone}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{The Geodesic Equation}
+%Let $B$ be the unit disk (a 2D ball) centered at the origin in $\C\cong\R^2$.
+First, let $g=|\de z|^2=\de x^2+\de y^2$ be the standard metric on $\C\cong\R^2$.  We wish to build a path $\gamma\from[0,\infty)\to\C$ with zero second derivative from the initial data $\gamma(0)=p$ and $\dot\gamma(0)=\vec v$ (the former is the \emph{initial position} and the latter is the \emph{initial velocity} of $\gamma$).  This means we need to solve the differential equation
+\begin{equation}
+    \ddot\gamma(t)=0
+\end{equation}
+for all $t$.  It only takes a little work to show the unique solution is $\gamma(t)=p+t\vec v$, which is just the path which goes in a straight line at a constant rate.  This is the prototypical example of a \emph{geodesic}.
+
+We wish to generalize the notion of a geodesic in more interesting geometries.  The trouble is, it's difficult to generalize the meaning of the second derivative of $\gamma$---it fundamentally depends on what coordinate system you're using, and in general there is no one coordinate system that is more natural than any others (think about a sphere or a torus).  We therefore need a new way to track how the velocity vector $\dot\gamma(t)$ changes over time, and what it means for that velocity to be `constant' (again, picture a path going around a sphere; the velocity of $\gamma$ has to change to stay tangent to the sphere, but we can still require that the path does not turn left or right).  The start of Chapter 4 of Lee's \emph{Riemanian Manifolds} describes this much better than I just have.
+
+The correct generalization turns out to be a \emph{connection}, which is closely tied to the \emph{covariant derivative}.  It's a very confusing definition, but what you need to know is that a choice of metric naturally defines a connection (the Levi-Civita connection) which we denote $\nabla$.  Thankfully, in the 2-dimensional case, especially with a conformal metric, the formula is pretty simple: $\nabla=\de+\del\log u^2$ wehre $\del\log u^2=\del_z\log u^2\,\de z$ is a comlpex $1\times 1$ matrix-valued 1-form.  The the geodesic equation is $\nabla_{\dot\gamma}\dot\gamma=0$ (in general, $\nabla_uv$ is obtained by feeding $u$ into the form part and multiplying $v$ by the resulting $1\times1$ matrix).
+
+Say the metric is $g=u^2|\de z|^2$.  The $u=1$ case is the standard metric, and if $u=|z|^{\beta-1}$ we get the conical metric with cone angle $\beta\in(0,1]$ discussed in the M.R.S.\ paper.  It'll be fun to play around with other choices of $u$, too.  In any case, we calculate $\nabla{\dot\gamma}$ first, which is a 1-form (technically, we need to extend $\dot\gamma$ to a vector field on a tubular neighborhood of $\im\gamma$):
+\begin{equation}
+    \nabla_{\dot\gamma}=\de\dot\gamma+(\del\log u^2)\dot\gamma=\de\dot\gamma+(\del_z\log u^2)\dot\gamma\,\de z.
+\end{equation}
+Here, we consider $\dot\gamma$ to be a complex number.  Now we evaluate the 1-form on the tangent vector $\dot\gamma$:
+\begin{equation}\label{eqn: geodesic equation}
+    0=\nabla_{\dot\gamma}\dot\gamma=\ddot\gamma+(\partial_z\log u^2)\dot\gamma\cdot\langle\de z,\dot\gamma\rangle=\ddot\gamma+(\del_z\log u^2)\dot\gamma^2
+\end{equation}
+or, in $(x,y)$ coordinates with $\dot\gamma=\left(\begin{smallmatrix}\dot\gamma_x\\\dot\gamma_y\end{smallmatrix}\right)$ and recalling $\de z=\de x+i\de y$,
+\begin{equation}\label{eqn: geodesic equation in x y}
+    0=\ddot\gamma+\underbrace{(\partial_x\log u-i\partial_y\log u)}_{\partial_z\log u^2}(\dot\gamma_x+i\dot\gamma_y)(\dot\gamma_x+i\dot\gamma_x).
+\end{equation}
+Notice that if $u=1$ then $\log u=0$, so the equation \eqref{eqn: geodesic equation} reduces to $\ddot\gamma=0$.  If $u=|z|^{\beta-1}$ then
+    $$\partial_z\log u^2
+    %=\frac{\beta-1}2\partial_z\log|z|^2
+    =\frac{\beta-1}z$$
+(optional: verify this).  We are evaluating this at $z=\gamma(t)$, so the geodesic equation is
+\begin{equation}\label{eqn: conical geodesic equation}
+    0=\ddot\gamma+\frac{\beta-1}\gamma\dot\gamma^2.
+\end{equation}
+
+\section*{Approximating Geodesics on a Cone}
+So how do we simulate a geodesic path?  We use \href{https://en.wikipedia.org/wiki/Euler_method}{Euler's method}.  We begin with the initial data $\gamma(0)=p$ and $\dot\gamma(0)=\vec v=\left(\begin{smallmatrix}v_1\\v_2\end{smallmatrix}\right)$.  As a complex number, $\dot\gamma(0)=v_1+iv_2$.  We can rearrange \eqref{eqn: conical geodesic equation} to
+\begin{equation}
+    \ddot\gamma=\frac{1-\beta}\gamma\dot\gamma^2=\frac{1-\beta}\gamma\left(v_1^2-v_2^2+2iv_1v_2\right).
+\end{equation}
+Fixing some time increment $\Delta t$, we use the current value of $\dot\gamma$ to update $\gamma$ (by adding $\Delta t\,\dot\gamma$), and then we update $\dot\gamma$ by adding $\Delta t\,\ddot\gamma$ to its current value.  Now we have approximations for $\gamma(\Delta t)$ and $\dot\gamma(\Delta t)$.  We repeat to get $\gamma(2\Delta t)$ and $\dot\gamma(2\Delta t)$, and so on.  Throughout this process, we have to translate between complex numbers and 2D coordinates.  It's nothing too complicated, but it can get confusing.
+
+For other (conformal) metrics, it's the exact same process but we replace $\frac{1-\beta}z$ with whatever $-\partial_z\log u^2$ is, and then evaluate at $z=\gamma$.  I've never attempted this kind of simulation before, but it sounds really fun.  I'd love it if we can create little animations of a beam tracing through a geodesic path.  If you do visualize this on a 2D graph, you need to think of it as looking straight down at a cone, so that it's tip corresponds to the origin $(x,y)=(0,0)$.  If we manage this, we can talk about how to display it as an actual cone in 3D space.
+
+\end{document}
