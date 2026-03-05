@@ -3,7 +3,7 @@
 
 
 \title{Curvature Flow}
-\author{}
+\author{Arya Yae}
 \date{}
 
 \begin{document}
@@ -25,25 +25,26 @@ The standard laplacian is $\Delta=\partial_{xx}+\partial_{yy}$.  By composing th
 \end{align}
 Based on our experience so far, it seems like polar coordinates are best for curvature flow and complex coordinates are best for calculating geodesics.
 
-The \emph{standard metric} $g_0$ can be expressed as $g_0=(\de x)^2+(\de y)^2$ or $g_0=(\de r)^2+r^2(\de\theta)^2$ or $g_0=|\de z|^2$.  This is technically called a $(0,2)$-tensor, but as far as we are concerned it simply represents the method being used to measure the (squared) length of vectors.
+The \emph{standard metric} $g_0$ can be expressed as $g_0=(\de x)^2+(\de y)^2$ or $g_0=(\de r)^2+r^2(\de\theta)^2$ or $g_0=|\de z|^2$.  This is technically called a \emph{symmetric $(0,2)$-tensor}, but as far as we are concerned it simply represents the method being used to measure the (squared) length of vectors.
 
-Associated to $g_0$ is the \emph{standard symplectic form} $\omega_0=\de x\wedge\de y$ or $\omega_r=\frac1{2i}\de\bar z\wedge\de z$ (we won't need the polar version), which is also a $(0,2)$-tensor which is used to measure the area of parallelograms.  These are mostly used for integration.
+Associated to $g_0$ is the \emph{standard symplectic form} $\omega_0=\de x\wedge\de y$ or $\omega_0=\frac1{2i}\de\bar z\wedge\de z$ or $\omega_0=r\,\de r\wedge\de\theta$, which is an \emph{antisymmetric $(0,2)$-tensor} used to measure the area of parallelograms.  These are mostly used for integration.
 
-As in the stereographic projection example we discussed, sometimes we want to use $\R^2$ to represent points on a surface which may not actually be flat.  This makes the notion of distances between points vary depending on the location in $\R^2$.  Thus, we can used a positive function $u$ on $\R^2$ to create a weighted metric $g=ug_0$.  In the various coordinate systems this looks like\footnote{It is commonplace to use $\de x^2$ to denote $(\de x)^2$; this should not be confused with $\de(x^2)$.}
+As in the stereographic projection example, we often want to use portions of $\R^2$ to represent patches of a surface which has different geometry.  This makes the notion of distances between points vary depending on the location in $\R^2$.  Thus, we can used a positive \emph{weight function} $u$ on $\R^2$ to create a new metric $g=ug_0$ (see \Cref{fig: Stereographic Projection}).  In the various coordinate systems this looks like\footnote{It is commonplace to use $\de x^2$ to denote $(\de x)^2$; this should not be confused with $\de(x^2)$.}
 \begin{align}
     g
         &=u(x,y)\,(\de x^2+\de y^2)\\
         &=u(r,\theta)\,(\de r^2+r^2\de\theta^2)\\
         &=\frac1{2i}u(z)\,|\de z|^2.
 \end{align}
-The associated symplectic form is $\omega=u\omega_0$.  When doing curvature flow, this weight function $u$ is what evolves over time.  Some, such as Jost, use $\lambda^2$ in place of $u$ to avoid worrying about negative values.  However Mazzeo-Rubinstein-Sesum just use $u$.
+The associated symplectic form is $\omega=u\,\omega_0$.  When doing curvature flow, this weight function $u$ is what evolves over time.  Some, such as Jost, use $\lambda^2$ in place of $u$ to avoid worrying about negative values.  However Mazzeo-Rubinstein-Sesum just use $u$.
 
-\begin{figure}\label{fig: Stereographic Projection}
+\begin{figure}
     \centering
     \includegraphics[width=.5\textwidth]{stereographic_projection.png}\qquad
     \includegraphics[width=.4\textwidth]{fubini_study_metric.png}
     \captionsetup{width=.9\textwidth}
     \caption{The image on the left is the stereographic projection, wherein the metric should measure $d_1$ as larger than $d_2$.  Thus, the weight function $u$ should be smaller away from the origin in $\R^2$.  This is reflected in the image on the right, which shows the graph of the weight function for the Fubini-Study metric.}
+    \label{fig: Stereographic Projection}
 \end{figure}
 
 \begin{definition*}
@@ -54,7 +55,8 @@ The reason for the $\frac1u$ factor has to do with coordinate changes.  To illus
 
 Note that $K_g$ is a function on $\R^2$, because the curvature depends on the location.  The purpose of Ricci flow is to even out the curvature, to make $K_g$ a constant function.  The limit is called a \emph{uniformization metric}.
 
-Let $g_t=u_tg_0$ be a family of metrics (the $t$ subscript does not mean derivative---we'll stick with $\partial$ notation for derivatives), and let $K_t=K_{g_t}$.  Let $U\subseteq\R^2$ be a region.  The volume (area) of $U$ is $\mathrm{Vol}_t(U)=\int_U u_t$, and the average curvature on $U$ at time $t$ is $\rho_t=\int_U K_tu_t$.  Notice both values depend on the metric, and therefore depend on time $t$.
+Let $g_t=u_tg_0$ be a family of metrics\footnote{The $t$ subscript does not mean derivative.  We'll stick with $\partial$ notation for derivatives.}, and let $K_t=K_{g_t}$.  Let $U\subseteq\R^2$ be a region.  With respect to the metric $g_t$, the volume (area) of $U$ is $\mathrm{Vol}_t(U)=\int_U u_t$ and the average curvature on $U$ is
+    $$\rho_t=\frac1{\mathrm{Vol}_t(U)}\int_U K_tu_t.$$
 
 The \emph{normalized Ricci flow equation} on $U$ is
 \begin{equation}
